@@ -150,7 +150,7 @@ Letter.prototype.render = function( char ) {
   
 };
 
-var word = [ "CLUSTER", ""];
+var word = [ "CLUSTER", "env1"];
 var nextWord = 1;
 
 var letters = new Letters();

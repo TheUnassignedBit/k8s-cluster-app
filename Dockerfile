@@ -9,7 +9,9 @@ COPY . .
 RUN CGO_ENABLED=0 go build -o main
 
 FROM alpine:latest
-COPY --from=Builder /build/main /app/main
-COPY ./static/* /app/static/*
+
+COPY --from=Builder /build/main app/main
+COPY static/ app/static/
 EXPOSE 8000
-ENTRYPOINT [ "app/main" ]
+WORKDIR /app
+ENTRYPOINT [ "./main" ]

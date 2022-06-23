@@ -2,6 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"bytes"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -10,6 +13,19 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+func writeJs(placeholder,replacement string) {
+	input, err := ioutil.ReadFile("./static/source.js")
+	if err != nil {
+			fmt.Println(err)
+	}
+
+	output := bytes.Replace(input, []byte(placeholder), []byte(replacement), -1)
+
+	if err = ioutil.WriteFile("./static/script.js", output, 0666); err != nil {
+			fmt.Println(err)
+	}
+}
 
 // spaHandler implements the http.Handler interface, so we can use it
 // to respond to HTTP requests. The path to the static directory and
@@ -57,12 +73,14 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func main() {
 	router := mux.NewRouter()
 
+	writeJs("env1", os.Getenv("KUBERNETES_NODENAME"))
+
 	router.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		// an example API handler
 		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
 	})
 
-	spa := spaHandler{staticPath: "static", indexPath: "index.html"}
+	spa := spaHandler{staticPath: "./static", indexPath: "index.html"}
 	router.PathPrefix("/").Handler(spa)
 
 	srv := &http.Server{
